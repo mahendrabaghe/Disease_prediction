@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Signup{% endblock %}
+{% block content %}
+<section class="narrow-shell">
+    <div class="app-surface form-panel">
+        <div class="section-heading">
+            <span class="icon-pill"><i data-lucide="user-plus"></i></span>
+            <div>
+                <h1>Create account</h1>
+                <p>Use a patient account for predictions or a doctor account for clinical review.</p>
+            </div>
+        </div>
+        <form method="post" class="row g-3">
+            <div class="col-12">
+                <label class="form-label">Full name</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="col-12">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" required autocomplete="email">
+            </div>
+            <div class="col-12">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" class="form-control" minlength="8" required autocomplete="new-password">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Role</label>
+                <select class="form-select" name="role">
+                    <option value="patient">Patient</option>
+                    <option value="doctor">Doctor</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Admin invite code</label>
+                <input type="text" name="invite_code" class="form-control" placeholder="Only for admin signup">
+            </div>
+            <div class="col-12">
+                <button class="btn btn-primary w-100" type="submit">
+                    <i data-lucide="badge-check"></i> Create account
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

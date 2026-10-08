@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Smart Disease Prediction{% endblock %}
+{% block content %}
+<section class="auth-grid align-items-stretch">
+    <div class="auth-panel app-surface">
+        <div class="eyebrow">AI-assisted healthcare triage</div>
+        <h1 class="display-title">Smart Disease Prediction & Health Recommendation System</h1>
+        <p class="lead text-secondary">
+            Predict disease risk from symptoms, clinical values, and report indicators. Track history, download reports, and plan next steps with a clinician.
+        </p>
+        <div class="d-flex flex-wrap gap-2 mt-4">
+            <a href="{{ url_for('auth.signup') }}" class="btn btn-primary">
+                <i data-lucide="user-plus"></i> Create account
+            </a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">
+                <i data-lucide="log-in"></i> Login
+            </a>
+        </div>
+        <div class="stat-strip mt-4">
+            <div><strong>9</strong><span>Diseases</span></div>
+            <div><strong>{{ metrics.rows or '1170' }}</strong><span>Sample records</span></div>
+            <div><strong>{{ (metrics.best_accuracy * 100)|round(1) if metrics.best_accuracy else 'Ready' }}</strong><span>Best model</span></div>
+        </div>
+    </div>
+    <div class="app-surface dashboard-preview">
+        <div class="preview-header">
+            <div>
+                <span class="status-dot"></span>
+                Live health score
+            </div>
+            <span class="badge text-bg-success">Model ready</span>
+        </div>
+        <div class="risk-orbit">
+            <span>86</span>
+            <small>Health Score</small>
+        </div>
+        <div class="preview-grid">
+            <div>
+                <i data-lucide="heart-pulse"></i>
+                <strong>Heart Disease</strong>
+                <span>Cardiologist</span>
+            </div>
+            <div>
+                <i data-lucide="droplets"></i>
+                <strong>Diabetes</strong>
+                <span>Endocrinologist</span>
+            </div>
+            <div>
+                <i data-lucide="file-search"></i>
+                <strong>OCR Reports</strong>
+                <span>PDF/JPG/PNG</span>
+            </div>
+            <div>
+                <i data-lucide="bot"></i>
+                <strong>Assistant</strong>
+                <span>Diet and care</span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

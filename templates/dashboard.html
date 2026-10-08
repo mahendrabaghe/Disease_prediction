@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<section class="dashboard-layout">
+    <div class="dashboard-main">
+        <div class="page-title-row">
+            <div>
+                <div class="eyebrow">Patient dashboard</div>
+                <h1>Good health starts with early signals</h1>
+            </div>
+            <a class="btn btn-primary" href="{{ url_for('main.predict') }}">
+                <i data-lucide="scan-heart"></i> New prediction
+            </a>
+        </div>
+
+        <div class="metric-grid">
+            <div class="metric-card app-surface">
+                <span>Health score</span>
+                <strong>{{ latest_score }}</strong>
+                <div class="progress"><div class="progress-bar bg-success" style="width: {{ latest_score }}%"></div></div>
+            </div>
+            <div class="metric-card app-surface">
+                <span>Total checks</span>
+                <strong>{{ history|length }}</strong>
+                <p>Saved in your history</p>
+            </div>
+            <div class="metric-card app-surface">
+                <span>Appointments</span>
+                <strong>{{ appointments|length }}</strong>
+                <p>Recent requests</p>
+            </div>
+        </div>
+
+        <div class="grid-2 mt-4">
+            <div class="app-surface">
+                <div class="section-heading compact">
+                    <span class="icon-pill"><i data-lucide="line-chart"></i></span>
+                    <div>
+                        <h2>Health score trend</h2>
+                        <p>Recent predictions by date.</p>
+                    </div>
+                </div>
+                <canvas id="scoreChart" height="155"
+                        data-labels='{{ chart_labels|tojson }}'
+                        data-values='{{ chart_scores|tojson }}'></canvas>
+            </div>
+            <div class="app-surface">
+                <div class="section-heading compact">
+                    <span class="icon-pill"><i data-lucide="pie-chart"></i></span>
+                    <div>
+                        <h2>Disease distribution</h2>
+                        <p>Most common predictions.</p>
+                    </div>
+                </div>
+                <canvas id="diseaseChart" height="155"
+                        data-counts='{{ disease_counts|tojson }}'></canvas>
+            </div>
+        </div>
+
+        <div class="app-surface mt-4">
+            <div class="section-heading compact">
+                <span class="icon-pill"><i data-lucide="history"></i></span>
+                <div>
+                    <h2>Recent health history</h2>
+                    <p>Your latest AI-assisted predictions.</p>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Disease</th>
+                        <th>Confidence</th>
+                        <th>Severity</th>
+                        <th>Doctor</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in history %}
+                        <tr>
+                            <td>{{ item.created_at.strftime('%d %b %Y') }}</td>
+                            <td>{{ item.disease }}</td>
+                            <td>{{ '%.1f'|format(item.confidence) }}%</td>
+                            <td><span class="severity severity-{{ item.severity|lower }}">{{ item.severity }}</span></td>
+                            <td>{{ item.doctor_type }}</td>
+                            <td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('main.prediction_result', prediction_id=item.id) }}">View</a></td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="6" class="text-secondary">No predictions yet.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <aside class="dashboard-side">
+        <div class="app-surface">
+            <div class="section-heading compact">
+                <span class="icon-pill"><i data-lucide="pill"></i></span>
+                <div>
+                    <h2>Medicine reminders</h2>
+                    <p>Keep reminders aligned with prescriptions.</p>
+                </div>
+            </div>
+            <form method="post" action="{{ url_for('main.add_reminder') }}" class="row g-2">
+                <div class="col-12"><input class="form-control" name="medicine_name" placeholder="Medicine name" required></div>
+                <div class="col-6"><input class="form-control" name="dosage" placeholder="Dosage"></div>
+                <div class="col-6"><input class="form-control" type="time" name="reminder_time" value="09:00"></div>
+                <div class="col-12"><input class="form-control" name="note" placeholder="Note"></div>
+                <div class="col-12">
+                    <button class="btn btn-outline-primary w-100" type="submit"><i data-lucide="bell-plus"></i> Add reminder</button>
+                </div>
+            </form>
+            <div class="list-stack mt-3">
+                {% for reminder in reminders %}
+                    <div class="list-row">
+                        <div>
+                            <strong>{{ reminder.medicine_name }}</strong>
+                            <span>{{ reminder.dosage or 'Dose as prescribed' }} at {{ reminder.reminder_time }}</span>
+                        </div>
+                        <form method="post" action="{{ url_for('main.toggle_reminder', reminder_id=reminder.id) }}">
+                            <button class="btn btn-icon" aria-label="Toggle reminder"><i data-lucide="check"></i></button>
+                        </form>
+                    </div>
+                {% else %}
+                    <p class="text-secondary mb-0">No active reminders.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="app-surface mt-4">
+            <div class="section-heading compact">
+                <span class="icon-pill"><i data-lucide="calendar-plus"></i></span>
+                <div>
+                    <h2>Appointments</h2>
+                    <p>Recent booking requests.</p>
+                </div>
+            </div>
+            <div class="list-stack">
+                {% for appointment in appointments %}
+                    <div class="list-row">
+                        <div>
+                            <strong>{{ appointment.doctor_type }}</strong>
+                            <span>{{ appointment.preferred_date }} at {{ appointment.preferred_time }}</span>
+                        </div>
+                        <span class="badge text-bg-light">{{ appointment.status }}</span>
+                    </div>
+                {% else %}
+                    <p class="text-secondary mb-0">No appointment requests.</p>
+                {% endfor %}
+            </div>
+            <a class="btn btn-outline-primary w-100 mt-3" href="{{ url_for('main.appointments') }}">
+                <i data-lucide="calendar"></i> Book appointment
+            </a>
+        </div>
+    </aside>
+</section>
+{% endblock %}

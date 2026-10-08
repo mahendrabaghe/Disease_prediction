@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Disease Prediction{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <div>
+        <div class="eyebrow">Symptom-based prediction</div>
+        <h1>Enter symptoms and clinical values</h1>
+    </div>
+</div>
+<form method="post" class="prediction-form app-surface">
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <h2 class="form-section-title">Symptoms</h2>
+            <div class="symptom-grid">
+                {% for field, label in [
+                    ('fever','Fever'),('cough','Cough'),('fatigue','Fatigue'),('chest_pain','Chest pain'),
+                    ('headache','Headache'),('vomiting','Vomiting'),('body_pain','Body pain'),('breathing_difficulty','Breathing difficulty')
+                ] %}
+                    <label class="symptom-tile">
+                        <input type="checkbox" name="{{ field }}" value="1">
+                        <span><i data-lucide="plus-circle"></i>{{ label }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <h2 class="form-section-title">Patient details</h2>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Age</label>
+                    <input class="form-control" type="number" name="age" min="1" max="110" value="35">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Weight (kg)</label>
+                    <input class="form-control" type="number" step="0.1" name="weight" value="68">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Gender</label>
+                    <select class="form-select" name="gender">
+                        <option value="female">Female</option>
+                        <option value="male">Male</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Blood pressure</label>
+                    <input class="form-control" name="blood_pressure" placeholder="120/80">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Sugar level mg/dL</label>
+                    <input class="form-control" type="number" step="0.1" name="sugar_level" placeholder="95">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Medical history</label>
+                    <select class="form-select" name="medical_history">
+                        <option value="none">None</option>
+                        <option value="hypertension">Hypertension</option>
+                        <option value="diabetes">Diabetes</option>
+                        <option value="heart disease">Heart disease</option>
+                        <option value="kidney disease">Kidney disease</option>
+                        <option value="liver disease">Liver disease</option>
+                        <option value="anemia">Anemia</option>
+                        <option value="asthma">Asthma</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="accordion mt-4" id="advancedLabs">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#labs">
+                            Advanced blood test and clinical parameters
+                        </button>
+                    </h2>
+                    <div id="labs" class="accordion-collapse collapse" data-bs-parent="#advancedLabs">
+                        <div class="accordion-body">
+                            <div class="row g-3">
+                                {% for name, label, placeholder in [
+                                    ('hemoglobin','Hemoglobin g/dL','13.8'),('platelet_count','Platelets /uL','250000'),
+                                    ('wbc_count','WBC /uL','7500'),('creatinine','Creatinine mg/dL','0.9'),
+                                    ('bilirubin','Bilirubin mg/dL','0.8'),('alt','ALT U/L','28'),
+                                    ('ast','AST U/L','26'),('oxygen_saturation','Oxygen saturation %','98')
+                                ] %}
+                                    <div class="col-md-3">
+                                        <label class="form-label">{{ label }}</label>
+                                        <input class="form-control" type="number" step="0.1" name="{{ name }}" placeholder="{{ placeholder }}">
+                                    </div>
+                                {% endfor %}
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch mt-4">
+                                        <input class="form-check-input" type="checkbox" name="malaria_parasite" value="1" id="malaria">
+                                        <label class="form-check-label" for="malaria">Malaria parasite detected</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch mt-4">
+                                        <input class="form-check-input" type="checkbox" name="typhoid_igg" value="1" id="typhoid">
+                                        <label class="form-check-label" for="typhoid">Typhoid/Widal reactive</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end mt-4">
+                <button class="btn btn-primary btn-lg" type="submit">
+                    <i data-lucide="activity"></i> Predict disease
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Prediction Result{% endblock %}
+{% set result = prediction.result_json %}
+{% set rec = result.recommendations %}
+{% block content %}
+<div class="page-title-row">
+    <div>
+        <div class="eyebrow">Prediction result</div>
+        <h1>{{ prediction.disease }}</h1>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a class="btn btn-outline-primary" href="{{ url_for('main.download_prediction', prediction_id=prediction.id) }}">
+            <i data-lucide="download"></i> PDF
+        </a>
+        <a class="btn btn-primary" href="{{ url_for('main.appointments') }}">
+            <i data-lucide="calendar-plus"></i> Book doctor
+        </a>
+    </div>
+</div>
+
+<section class="result-grid">
+    <div class="app-surface result-summary">
+        <div class="risk-meter" style="--risk: {{ prediction.confidence }}%">
+            <span>{{ '%.1f'|format(prediction.confidence) }}%</span>
+            <small>Confidence</small>
+        </div>
+        <div>
+            <span class="severity severity-{{ prediction.severity|lower }}">{{ prediction.severity }}</span>
+            <h2>{{ prediction.disease }}</h2>
+            <p>Recommended doctor: <strong>{{ prediction.doctor_type }}</strong></p>
+            <p>Health score: <strong>{{ prediction.health_score }}/100</strong></p>
+        </div>
+    </div>
+    <div class="app-surface">
+        <div class="section-heading compact">
+            <span class="icon-pill"><i data-lucide="bar-chart-3"></i></span>
+            <div>
+                <h2>Top predictions</h2>
+                <p>Model probability comparison.</p>
+            </div>
+        </div>
+        <canvas id="topPredictionChart" height="150" data-items='{{ result.top_predictions|tojson }}'></canvas>
+    </div>
+</section>
+
+{% if prediction.severity == 'Critical' or rec.emergency %}
+<div class="alert alert-danger d-flex align-items-start gap-2 mt-4">
+    <i data-lucide="siren"></i>
+    <div><strong>Emergency warning:</strong> {{ rec.emergency }}</div>
+</div>
+{% endif %}
+
+<section class="grid-3 mt-4">
+    <div class="app-surface">
+        <div class="section-heading compact">
+            <span class="icon-pill"><i data-lucide="shield-check"></i></span>
+            <div><h2>Precautions</h2><p>General safety guidance.</p></div>
+        </div>
+        <ul class="clean-list">
+            {% for item in rec.precautions %}<li>{{ item }}</li>{% endfor %}
+        </ul>
+    </div>
+    <div class="app-surface">
+        <div class="section-heading compact">
+            <span class="icon-pill"><i data-lucide="pill"></i></span>
+            <div><h2>Medicine guidance</h2><p>Do not self-medicate.</p></div>
+        </div>
+        <ul class="clean-list">
+            {% for item in rec.medicines %}<li>{{ item }}</li>{% endfor %}
+        </ul>
+    </div>
+    <div class="app-surface">
+        <div class="section-heading compact">
+            <span class="icon-pill"><i data-lucide="utensils"></i></span>
+            <div><h2>Diet plan</h2><p>Foods and lifestyle.</p></div>
+        </div>
+        <p><strong>Eat:</strong> {{ rec.foods_to_eat|join(', ') }}</p>
+        <p><strong>Avoid:</strong> {{ rec.foods_to_avoid|join(', ') }}</p>
+        <p>{{ rec.diet }}</p>
+        <p>{{ rec.hydration }}</p>
+        <p>{{ rec.exercise }}</p>
+        <p>{{ rec.lifestyle }}</p>
+    </div>
+</section>
+
+<div class="app-surface mt-4">
+    <form method="post" action="{{ url_for('main.email_prediction', prediction_id=prediction.id) }}" class="row g-2 align-items-end">
+        <div class="col-md-8">
+            <label class="form-label">Email report to patient</label>
+            <input class="form-control" type="email" name="email" value="{{ current_user.email }}">
+        </div>
+        <div class="col-md-4">
+            <button class="btn btn-outline-primary w-100" type="submit">
+                <i data-lucide="mail"></i> Send report
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

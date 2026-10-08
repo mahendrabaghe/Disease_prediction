@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Doctor Panel{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <div>
+        <div class="eyebrow">Doctor/Admin panel</div>
+        <h1>Patient risk review</h1>
+    </div>
+</div>
+
+<section class="grid-2">
+    <div class="app-surface">
+        <div class="section-heading compact">
+            <span class="icon-pill"><i data-lucide="users"></i></span>
+            <div><h2>Users</h2><p>Recent registered users.</p></div>
+        </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th></tr></thead>
+                <tbody>
+                {% for user in users %}
+                    <tr><td>{{ user.name }}</td><td>{{ user.email }}</td><td>{{ user.role }}</td><td>{{ user.created_at.strftime('%d %b') }}</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="app-surface">
+        <div class="section-heading compact">
+            <span class="icon-pill"><i data-lucide="calendar-clock"></i></span>
+            <div><h2>Appointments</h2><p>Update request status.</p></div>
+        </div>
+        <div class="list-stack">
+            {% for item in appointments %}
+                <div class="list-row doctor-row">
+                    <div>
+                        <strong>{{ item.user.name }} - {{ item.doctor_type }}</strong>
+                        <span>{{ item.preferred_date }} {{ item.preferred_time }} | {{ item.reason }}</span>
+                    </div>
+                    <form method="post" action="{{ url_for('main.update_appointment', appointment_id=item.id) }}" class="d-flex gap-2">
+                        <select class="form-select form-select-sm" name="status">
+                            {% for status in ['Requested','Confirmed','Completed','Cancelled'] %}
+                                <option {% if item.status == status %}selected{% endif %}>{{ status }}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="btn btn-sm btn-outline-primary"><i data-lucide="save"></i></button>
+                    </form>
+                </div>
+            {% else %}
+                <p class="text-secondary mb-0">No appointments.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<div class="app-surface mt-4">
+    <div class="section-heading compact">
+        <span class="icon-pill"><i data-lucide="activity"></i></span>
+        <div><h2>Recent predictions</h2><p>All patient predictions and report analyses.</p></div>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead><tr><th>Patient</th><th>Date</th><th>Source</th><th>Disease</th><th>Confidence</th><th>Severity</th><th>Doctor</th><th></th></tr></thead>
+            <tbody>
+            {% for item in records %}
+                <tr>
+                    <td>{{ item.user.name }}</td>
+                    <td>{{ item.created_at.strftime('%d %b %Y') }}</td>
+                    <td>{{ item.source|title }}</td>
+                    <td>{{ item.disease }}</td>
+                    <td>{{ '%.1f'|format(item.confidence) }}%</td>
+                    <td><span class="severity severity-{{ item.severity|lower }}">{{ item.severity }}</span></td>
+                    <td>{{ item.doctor_type }}</td>
+                    <td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('main.prediction_result', prediction_id=item.id) }}">Open</a></td>
+                </tr>
+            {% else %}
+                <tr><td colspan="8" class="text-secondary">No predictions yet.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

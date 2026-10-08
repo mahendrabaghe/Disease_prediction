@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Health History{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <div>
+        <div class="eyebrow">Health history tracking</div>
+        <h1>Saved predictions and report analyses</h1>
+    </div>
+</div>
+<div class="app-surface">
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Source</th>
+                <th>Disease</th>
+                <th>Confidence</th>
+                <th>Severity</th>
+                <th>Doctor</th>
+                <th>Health score</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in records %}
+                <tr>
+                    <td>{{ item.created_at.strftime('%d %b %Y %H:%M') }}</td>
+                    <td>{{ item.source|title }}</td>
+                    <td>{{ item.disease }}</td>
+                    <td>{{ '%.1f'|format(item.confidence) }}%</td>
+                    <td><span class="severity severity-{{ item.severity|lower }}">{{ item.severity }}</span></td>
+                    <td>{{ item.doctor_type }}</td>
+                    <td>{{ item.health_score }}</td>
+                    <td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('main.prediction_result', prediction_id=item.id) }}">View</a></td>
+                </tr>
+            {% else %}
+                <tr><td colspan="8" class="text-secondary">No history found.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

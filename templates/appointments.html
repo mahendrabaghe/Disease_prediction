@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Appointments{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <div>
+        <div class="eyebrow">Appointment booking</div>
+        <h1>Request a doctor consultation</h1>
+    </div>
+</div>
+<section class="grid-2">
+    <div class="app-surface">
+        <div class="section-heading compact">
+            <span class="icon-pill"><i data-lucide="calendar-plus"></i></span>
+            <div><h2>New request</h2><p>Choose the relevant doctor type.</p></div>
+        </div>
+        <form method="post" class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Doctor type</label>
+                <select class="form-select" name="doctor_type">
+                    <option>General Physician</option>
+                    {% for name, info in diseases.items() %}
+                        <option>{{ info.doctor_type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Date</label>
+                <input class="form-control" type="date" name="preferred_date" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Time</label>
+                <input class="form-control" type="time" name="preferred_time" value="10:00" required>
+            </div>
+            <div class="col-12">
+                <label class="form-label">Reason</label>
+                <textarea class="form-control" name="reason" rows="4" placeholder="Symptoms, report values, or follow-up need"></textarea>
+            </div>
+            <div class="col-12">
+                <button class="btn btn-primary" type="submit"><i data-lucide="send"></i> Submit request</button>
+            </div>
+        </form>
+    </div>
+    <div class="app-surface">
+        <div class="section-heading compact">
+            <span class="icon-pill"><i data-lucide="calendar-check"></i></span>
+            <div><h2>Your requests</h2><p>Doctor/admin updates appear here.</p></div>
+        </div>
+        <div class="list-stack">
+            {% for item in appointments %}
+                <div class="list-row">
+                    <div>
+                        <strong>{{ item.doctor_type }}</strong>
+                        <span>{{ item.preferred_date }} at {{ item.preferred_time }}</span>
+                        <span>{{ item.reason }}</span>
+                    </div>
+                    <span class="badge text-bg-light">{{ item.status }}</span>
+                </div>
+            {% else %}
+                <p class="text-secondary mb-0">No appointment requests yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

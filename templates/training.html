@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Model Training{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <div>
+        <div class="eyebrow">Model training pipeline</div>
+        <h1>Accuracy comparison and confusion matrix</h1>
+    </div>
+</div>
+<section class="grid-2">
+    <div class="app-surface">
+        <div class="section-heading compact">
+            <span class="icon-pill"><i data-lucide="brain-circuit"></i></span>
+            <div><h2>Algorithm comparison</h2><p>Best model: {{ metrics.best_model or 'Train models first' }}</p></div>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead><tr><th>Algorithm</th><th>Accuracy</th><th>CV mean</th><th>CV std</th></tr></thead>
+                <tbody>
+                {% for item in metrics.algorithms or [] %}
+                    <tr>
+                        <td>{{ item.algorithm }}</td>
+                        <td>{{ (item.accuracy * 100)|round(2) }}%</td>
+                        <td>{{ (item.cross_validation_mean * 100)|round(2) }}%</td>
+                        <td>{{ (item.cross_validation_std * 100)|round(2) }}%</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="4" class="text-secondary">No metrics found. Run python scripts/train_models.py.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="app-surface">
+        <div class="section-heading compact">
+            <span class="icon-pill"><i data-lucide="layout-dashboard"></i></span>
+            <div><h2>Training summary</h2><p>Dataset and feature engineering.</p></div>
+        </div>
+        <div class="summary-list">
+            <div><span>Rows</span><strong>{{ metrics.rows or 0 }}</strong></div>
+            <div><span>Target</span><strong>{{ metrics.target or 'disease' }}</strong></div>
+            <div><span>Best accuracy</span><strong>{{ (metrics.best_accuracy * 100)|round(2) if metrics.best_accuracy else 0 }}%</strong></div>
+        </div>
+        <canvas id="trainingChart" height="170" data-items='{{ (metrics.algorithms or [])|tojson }}'></canvas>
+    </div>
+</section>
+
+<div class="app-surface mt-4">
+    <div class="section-heading compact">
+        <span class="icon-pill"><i data-lucide="grid-3x3"></i></span>
+        <div><h2>Confusion matrix</h2><p>Rows are actual labels, columns are predicted labels.</p></div>
+    </div>
+    <div class="table-responsive matrix-table">
+        <table class="table table-bordered align-middle text-center">
+            <thead>
+            <tr>
+                <th>Actual / Predicted</th>
+                {% for label in metrics.labels or [] %}<th>{{ label }}</th>{% endfor %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in metrics.confusion_matrix or [] %}
+                <tr>
+                    <th>{{ metrics.labels[loop.index0] }}</th>
+                    {% for value in row %}<td>{{ value }}</td>{% endfor %}
+                </tr>
+            {% else %}
+                <tr><td class="text-secondary">No confusion matrix available.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

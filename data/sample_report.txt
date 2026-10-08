@@ -1,0 +1,11 @@
+Patient: Demo Patient
+Report: CBC and Biochemistry
+Glucose: 184 mg/dL
+Hemoglobin: 10.8 g/dL
+Platelet Count: 92000 /uL
+WBC Count: 12400 /uL
+Creatinine: 0.9 mg/dL
+Bilirubin: 0.8 mg/dL
+Oxygen Saturation: 96%
+
+This synthetic report is for testing OCR/NLP extraction only.

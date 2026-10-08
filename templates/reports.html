@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Medical Report Analysis{% endblock %}
+{% block content %}
+<div class="page-title-row">
+    <div>
+        <div class="eyebrow">OCR and NLP report analysis</div>
+        <h1>Upload blood test or medical reports</h1>
+    </div>
+</div>
+
+<section class="grid-2">
+    <div class="app-surface">
+        <div class="section-heading">
+            <span class="icon-pill"><i data-lucide="file-up"></i></span>
+            <div>
+                <h2>Analyze report</h2>
+                <p>Supported formats: PDF, JPG, JPEG, PNG. OCR uses Tesseract when installed.</p>
+            </div>
+        </div>
+        <form method="post" enctype="multipart/form-data" class="upload-zone">
+            <input type="file" name="report" class="form-control" accept=".pdf,.jpg,.jpeg,.png" required>
+            <button class="btn btn-primary mt-3" type="submit">
+                <i data-lucide="scan-text"></i> Extract and analyze
+            </button>
+        </form>
+        <p class="demo-note mt-3">Sample text report is available in data/sample_report.txt for copy/paste PDF testing.</p>
+    </div>
+
+    <div class="app-surface">
+        <div class="section-heading">
+            <span class="icon-pill"><i data-lucide="flask-conical"></i></span>
+            <div>
+                <h2>Indicators detected</h2>
+                <p>Rules highlight abnormal clinical values.</p>
+            </div>
+        </div>
+        {% if analysis %}
+            <div class="result-mini">
+                <span class="severity severity-high">{{ analysis.risk_percentage }}% risk</span>
+                <h3>{{ analysis.predicted_disease }}</h3>
+                <p>Recommended doctor: <strong>{{ analysis.doctor_type }}</strong></p>
+                {% if analysis.prediction_id %}
+                    <a class="btn btn-outline-primary btn-sm" href="{{ url_for('main.prediction_result', prediction_id=analysis.prediction_id) }}">Open saved report</a>
+                {% endif %}
+            </div>
+        {% else %}
+            <p class="text-secondary">Upload a report to see extracted values, abnormalities, and disease risk.</p>
+        {% endif %}
+    </div>
+</section>
+
+{% if analysis %}
+<section class="grid-2 mt-4">
+    <div class="app-surface">
+        <div class="section-heading compact">
+            <span class="icon-pill"><i data-lucide="list-checks"></i></span>
+            <div><h2>Abnormalities</h2><p>Detected health indicators.</p></div>
+        </div>
+        <div class="list-stack">
+            {% for item in analysis.abnormalities %}
+                <div class="list-row">
+                    <div>
+                        <strong>{{ item.label }}</strong>
+                        <span>Linked disease: {{ item.linked_disease }}</span>
+                    </div>
+                    <span class="badge text-bg-warning">{{ item.status }}</span>
+                </div>
+            {% else %}
+                <p class="text-secondary mb-0">No abnormal values detected from extracted text.</p>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="app-surface">
+        <div class="section-heading compact">
+            <span class="icon-pill"><i data-lucide="database"></i></span>
+            <div><h2>Extracted values</h2><p>Parsed report data.</p></div>
+        </div>
+        <div class="table-responsive">
+            <table class="table">
+                <tbody>
+                {% for key, value in analysis.extracted_values.items() %}
+                    <tr><th>{{ key.replace('_', ' ')|title }}</th><td>{{ value }}</td></tr>
+                {% else %}
+                    <tr><td class="text-secondary">No structured values found.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<div class="app-surface mt-4">
+    <div class="section-heading compact">
+        <span class="icon-pill"><i data-lucide="text-search"></i></span>
+        <div><h2>Extracted text</h2><p>OCR/PDF text preview.</p></div>
+    </div>
+    <pre class="report-text">{{ analysis.extracted_text[:4000] }}</pre>
+</div>
+{% endif %}
+{% endblock %}
